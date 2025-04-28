@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Santé</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .calculator {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 4px;
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #eee;
+            border: none;
+            cursor: pointer;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculateur de Santé</h1>
+    
+    <div class="tabs">
+        <button class="tab active" onclick="openTab('bmi')">Calculateur d'IMC</button>
+        <button class="tab" onclick="openTab('bmr')">Calculateur de BMR</button>
+    </div>
+    
+    <div id="bmi-tab" class="tab-content active">
+        <div class="calculator">
+            <h2>Calculateur d'Indice de Masse Corporelle (IMC)</h2>
+            <div class="form-group">
+                <label for="height">Taille (en mètres):</label>
+                <input type="number" id="height" step="0.01" min="0.5" max="2.5" placeholder="Ex: 1.75">
+            </div>
+            <div class="form-group">
+                <label for="weight">Poids (en kg):</label>
+                <input type="number" id="weight" step="0.1" min="20" max="300" placeholder="Ex: 70">
+            </div>
+            <button onclick="calculateBMI()">Calculer IMC</button>
+            
+            <div id="bmi-result" class="result">
+                <h3>Résultat:</h3>
+                <p>Votre IMC: <span id="bmi-value">--</span></p>
+                <p>Catégorie: <span id="bmi-category">--</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="bmr-tab" class="tab-content">
+        <div class="calculator">
+            <h2>Calculateur de Métabolisme de Base (BMR)</h2>
+            <div class="form-group">
+                <label for="bmr-height">Taille (en cm):</label>
+                <input type="number" id="bmr-height" step="1" min="50" max="250" placeholder="Ex: 175">
+            </div>
+            <div class="form-group">
+                <label for="bmr-weight">Poids (en kg):</label>
+                <input type="number" id="bmr-weight" step="0.1" min="20" max="300" placeholder="Ex: 70">
+            </div>
+            <div class="form-group">
+                <label for="age">Âge (en années):</label>
+                <input type="number" id="age" step="1" min="1" max="120" placeholder="Ex: 30">
+            </div>
+            <div class="form-group">
+                <label for="gender">Sexe:</label>
+                <select id="gender">
+                    <option value="male">Homme</option>
+                    <option value="female">Femme</option>
+                </select>
+            </div>
+            <button onclick="calculateBMR()">Calculer BMR</button>
+            
+            <div id="bmr-result" class="result">
+                <h3>Résultat:</h3>
+                <p>Votre BMR: <span id="bmr-value">--</span> calories/jour</p>
+                <p>C'est la quantité de calories que votre corps brûle au repos.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            // Hide all tabs
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // Deactivate all tabs
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // Show the selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Activate the selected tab button
+            const buttons = document.getElementsByClassName('tab');
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].textContent.toLowerCase().includes(tabName)) {
+                    buttons[i].classList.add('active');
+                }
+            }
+        }
+        
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+                alert('Veuillez entrer des valeurs valides pour la taille et le poids.');
+                return;
+            }
+            
+            const requestData = {
+                height: height,
+                weight: weight
+            };
+            
+            fetch('/bmi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('bmi-value').textContent = data.bmi;
+                document.getElementById('bmi-category').textContent = data.category;
+                document.getElementById('bmi-result').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur s\'est produite lors du calcul de l\'IMC.');
+            });
+        }
+        
+        function calculateBMR() {
+            const height = parseFloat(document.getElementById('bmr-height').value);
+            const weight = parseFloat(document.getElementById('bmr-weight').value);
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            
+            if (isNaN(height) || isNaN(weight) || isNaN(age) || height <= 0 || weight <= 0 || age <= 0) {
+                alert('Veuillez entrer des valeurs valides pour tous les champs.');
+                return;
+            }
+            
+            const requestData = {
+                height: height,
+                weight: weight,
+                age: age,
+                gender: gender
+            };
+            
+            fetch('/bmr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('bmr-value').textContent = data.bmr;
+                document.getElementById('bmr-result').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur s\'est produite lors du calcul du BMR.');
+            });
+        }
+    </script>
+</body>
+</html>

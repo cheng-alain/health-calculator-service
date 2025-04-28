@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from health_utils import calculate_bmi, calculate_bmr
 import logging
 
-# Configure logging
+# Configuration du logging
 logging.basicConfig(
     filename='health_app.log',
     level=logging.INFO,
@@ -13,13 +13,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return jsonify({
-        "message": "Health Calculator API",
-        "endpoints": {
-            "/bmi": "Calculate Body Mass Index (POST)",
-            "/bmr": "Calculate Basal Metabolic Rate (POST)"
-        }
-    })
+    return send_from_directory('static', 'index.html')
 
 @app.route('/bmi', methods=['POST'])
 def bmi():
