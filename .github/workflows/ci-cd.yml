@@ -31,8 +31,7 @@ jobs:
       run: |
         docker build -t health-calculator-app .
         
-    # Si vous déployez sur Azure, vous aurez besoin des étapes suivantes
-    # (Commenté car nécessite une configuration Azure)
+    # (Commenté car nécessite une configuration / Azure plus de crédit)
     
     # - name: Login to Azure
     #   uses: azure/login@v1
